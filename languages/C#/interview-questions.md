@@ -302,3 +302,152 @@ public override void Speak() {
 ```csharp
 string result = input ?? "default";
 ```
+
+### Q: What is Dependency Injection (DI)?
+
+> DI is a design pattern that allows injecting dependencies into classes rather than hardcoding them. It improves testability and loose coupling.
+
+```csharp
+public class UserService {
+    private readonly IRepository _repo;
+    public UserService(IRepository repo) {
+        _repo = repo;
+    }
+}
+```
+
+### Q：What is an Async Method in C#?
+
+> An async method allows asynchronous execution using async and await.
+
+```csharp
+public async Task<string> GetDataAsync() {
+    var response = await httpClient.GetStringAsync(url);
+    return response;
+}
+```
+
+### Q: Explain Exception Handling in C#
+
+> Exception handling uses try, catch, finally blocks.
+
+```csharp
+try {
+    int x = int.Parse("abc");
+} catch (FormatException ex) {
+    Console.WriteLine(ex.Message);
+} finally {
+    Console.WriteLine("Done");
+}
+```
+
+### Q: What is the difference between IEnumerable and IQueryable?
+
+> IEnumerable: executes in memory (LINQ to Objects)
+>
+> IQueryable: executes on data source (e.g., SQL via LINQ to Entities)
+
+### Q: What is Middleware in ASP.NET Core?
+
+> Middleware is software assembled into pipeline to handle requests/responses.
+>
+> Characteristics:
+>
+> > - Executed in order
+> > - Each can pass to next or short-circuit
+> > - Can execute code before and after next middleware
+> > - Built using Use, Run, Map methods
+>
+> Common middleware: Authentication, Routing, CORS, Exception handling
+
+```csharp
+public class RequestLoggingMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public RequestLoggingMiddleware(RequestDelegate next)
+    {
+        _next = next;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        Console.WriteLine($"Request: {context.Request.Path}");
+
+        await _next(context);
+
+        Console.WriteLine($"Response: {context.Response.StatusCode}");
+    }
+}
+
+public void Configure(IApplicationBuilder app)
+{
+    app.UseMiddleware<RequestLoggingMiddleware>();
+}
+```
+
+### Q: Explain types of Dependency Injection lifetimes
+
+> **Transient:**
+>
+> > - Created each time requested
+> > - Use for lightweight, stateless services
+>
+> **Scoped:**
+>
+> > - Created once per request/scope
+> > - Use for DbContext, per-request services
+>
+> Singleton:
+>
+> > - Created once for application lifetime
+> > - Use for stateless, thread-safe services
+> > - Memory efficient but must be thread-safe
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddTransient<IEmailService, EmailService>();
+
+    services.AddScoped<IOrderService, OrderService>();
+
+    services.AddSingleton<ICacheService, CacheService>();
+
+    services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString),
+        ServiceLifetime.Scoped);
+}
+```
+
+### Q: Explain how async/await improves performance
+
+> **async/await:**
+>
+> > - Non-blocking asynchronous operations
+> > - Frees up threads while waiting for I/O
+> > - Improves scalability (more concurrent requests)
+> > - Does NOT make code faster, makes it more efficient
+>
+> **Key points:**
+>
+> > - Use for I/O-bound operations (DB, HTTP, File)
+> > - Don't use for CPU-bound (use Task.Run)
+> > - Always await tasks
+> > - Avoid async void except event handlers
+
+### Q: What is the difference between throw and throw ex?
+
+> throw preserves the original stack trace
+>
+> throw ex overwrites it.
+>
+> throw is preferred for debugging.
+
+### Q: What is implicit casting in C#?
+
+> Automatically converting from a smaller/compatible type to a larger one.
+
+```csharp
+int x = 10;
+double y = x;  // implicit cast
+```
