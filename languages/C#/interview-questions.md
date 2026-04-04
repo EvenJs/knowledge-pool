@@ -161,3 +161,144 @@ var students = context.Students.Where(s => s.Age > 20).ToList();
 > > - Better performance
 > > - Lower memory usage
 > > - Use for read-only scenarios
+
+### Q: What is the difference between StringBuilder and String?
+
+> **String:**
+>
+> > - Immutable
+> > - Each operation creates new object
+> > - Inefficient for multiple concatenations
+> > - Thread-safe by nature
+>
+> **StringBuilder:**
+>
+> > - Mutable
+> > - Modifies same instance
+> > - Efficient for multiple operations
+> > - Not thread-safe
+> > - Use when doing 5+ string operations
+
+### Q: What is the difference between FirstOrDefault and SingleOrDefault?
+
+> **FirstOrDefault:**
+>
+> > - Returns first element or default
+> > - Doesn't check if more elements exist
+> > - More performant
+> > - Use when multiple matches are acceptable
+>
+> **SingleOrDefault:**
+>
+> > - Returns single element or default
+> > - Throws if multiple elements exist
+> > - Less performant (checks entire sequence)
+> > - Use when expecting exactly 0 or 1 match
+
+### Q: What is the purpose of the var keyword in C#?
+
+> var allows the compiler to infer the variable’s type at compile time. It keeps code clean but still strongly typed.
+
+```csharp
+var name = "Oliver"; // string
+var count = 10;      // int
+```
+
+### Q: What is a constructor in C#?
+
+> A constructor is a special method called when an object is created. It initializes fields.
+
+```csharp
+public class Car {
+    public string Model;
+    public Car(string model) {
+        Model = model;
+    }
+}
+```
+
+### Q: What is the difference between public and private?
+
+> public members are accessible anywhere, while private members are only accessible inside the same class.
+>
+> Encapsulation encourages making fields private and exposing only necessary properties or methods.
+
+### Q: What is a static class?
+
+> A static class cannot be instantiated. All members must be static. Often used for helpers or utility functions.
+>
+> Example: Math class.
+
+### Q: What is method overloading?
+
+> Method overloading means multiple methods with the same name but different parameters.
+
+```csharp
+void Log(string msg)
+void Log(string msg, int level)
+```
+
+### Q: What is the difference between List<T> and an array (T[])?
+
+> Arrays are fixed-size; List is dynamic and can grow or shrink.
+>
+> I prefer List for most business scenarios due to flexibility.
+
+### Q: What is an enum?
+
+> An enum is a named set of constant values—useful for statuses and categories.
+
+```csharp
+public enum OrderStatus { Pending, Paid, Cancelled }
+```
+
+### Q: What is string interpolation?
+
+> Using $"" to embed variables inside a string.
+
+```csharp
+var name = "Tom";
+Console.WriteLine($"Hello {name}");
+```
+
+### Q: What is the difference between int and int??
+
+> int cannot be null; int? (nullable int) can store null. Useful when reading optional database values.
+
+### Q: What is the default value of a class field?
+
+> - Reference types default to null.
+> - Numeric value types default to 0.
+> - Booleans default to false.
+
+### Q: What is the difference between foreach and for?
+
+> foreach iterates through collections without indexing, while for uses an index and is better when you need index values or want to modify the list.
+>
+> foreach is also safer because it prevents out-of-range errors.
+
+### Q: What does the virtual keyword do?
+
+> It allows a method to be overridden in derived classes.
+
+```csharp
+public virtual void Speak() { }
+```
+
+### Q: What does override mean in C#?
+
+> override replaces a base class’s virtual method with a new implementation.
+
+```csharp
+public override void Speak() {
+    Console.WriteLine("Dog barking");
+}
+```
+
+### Q: What is the purpose of the ?? operator?
+
+> Null-coalescing operator: returns a fallback value when the left side is null.
+
+```csharp
+string result = input ?? "default";
+```
