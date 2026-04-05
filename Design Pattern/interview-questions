@@ -1,0 +1,157 @@
+## SOLID
+
+### Q: Can you explain the Single Responsibility Principle (SRP) with a real project example?
+
+> SRP means a class should have one reason to change — one clear responsibility. In real life, developers often break this when they mix logic, validation, and I/O in one class.
+>
+> ```csharp
+> public class ReportService {
+>    public string GenerateReport() => "...";
+>    public void SaveToFile(string content) => File.WriteAllText("report.txt", content);
+>    public void SendEmail(string to, string report) => new SmtpClient().Send(...);
+> }
+> ```
+>
+> Three reasons to change: report logic, file I/O, and email policy.
+>
+> Better (SRP applied):
+>
+> ```csharp
+> public class ReportGenerator { public string Generate() => "..."; }
+> public class FileSaver { public void Save(string content) => File.WriteAllText("report.txt", content); }
+> public class EmailSender { public void Send(string to, string body) => new SmtpClient().Send(...); }
+> ```
+>
+> Now each class has a single, testable concern. You can modify email delivery without touching report generation — crucial in large systems.
+
+### Q: How does the Open/Closed Principle (OCP) help avoid regression bugs?
+
+> OCP says software entities should be open for extension, but closed for modification. You extend behavior via new classes rather than editing existing ones, which reduces risk to tested code.
+
+```csharp
+public interface IDiscountRule {
+    decimal Apply(Customer c, decimal total);
+}
+public class LoyaltyDiscount : IDiscountRule { /* 10% off */ }
+public class ChristmasDiscount : IDiscountRule { /* 20% off */ }
+
+public class DiscountService {
+    private readonly IEnumerable<IDiscountRule> _rules;
+    public DiscountService(IEnumerable<IDiscountRule> rules) => _rules = rules;
+    public decimal ApplyDiscounts(Customer c, decimal total) =>
+        _rules.Aggregate(total, (t, r) => r.Apply(c, t));
+}
+```
+
+Adding a new rule = new class. You don’t touch DiscountService, minimizing regressions. In a real project, this pattern is seen in pricing, validation pipelines, or plugin architectures.
+
+### Q: What’s a common violation of the Liskov Substitution Principle (LSP) and how do you fix it?
+
+LSP says subclasses must be substitutable for their base type without breaking expected behavior. Violations usually happen when a subclass narrows preconditions or breaks expected outcomes.
+
+```csharp
+public class Rectangle {
+    public virtual int Width { get; set; }
+    public virtual int Height { get; set; }
+}
+public class Square : Rectangle {
+    public override int Width { set { base.Width = base.Height = value; } }
+    public override int Height { set { base.Width = base.Height = value; } }
+}
+```
+
+Square breaks LSP: assigning width changes height unexpectedly.
+
+Prefer composition over inheritance:
+
+```csharp
+public class Square {
+    public int Side { get; set; }
+}
+```
+
+### Q: How do you apply the Interface Segregation Principle (ISP) in practice?
+
+ISP says don’t force clients to depend on methods they don’t use. Large “god interfaces” create unnecessary dependencies, breaking test isolation and reuse.
+
+Bad:
+
+```csharp
+public interface ICloudService {
+    void UploadFile();
+    void SendNotification();
+    void GenerateReport();
+}
+```
+
+A simple file uploader doesn’t care about notifications or reports.
+
+Fix:
+
+```csharp
+public interface IFileUploader { void UploadFile(); }
+public interface INotifier { void SendNotification(); }
+public interface IReportGenerator { void GenerateReport(); }
+```
+
+### Q: Explain the Dependency Inversion Principle (DIP) using an example from an API project.
+
+DIP tells you to depend on abstractions, not concretions. High-level modules (e.g., controllers) shouldn’t care if you use SQL Server, MongoDB, or an in-memory store.
+
+```csharp
+public interface IUserRepository {
+    Task<User?> GetByIdAsync(Guid id);
+}
+public class SqlUserRepository : IUserRepository { /* EF Core logic */ }
+
+public class UserService {
+    private readonly IUserRepository _repo;
+    public UserService(IUserRepository repo) => _repo = repo;
+    public Task<User?> GetAsync(Guid id) => _repo.GetByIdAsync(id);
+}
+
+services.AddScoped<IUserRepository, SqlUserRepository>();
+```
+
+This makes your service testable (FakeUserRepository) and swap-friendly (MongoDB, API-based, etc.). DIP reduces hard coupling between business rules and infrastructure.
+
+### Q: In your experience, how can violating SRP lead to poor testability?
+
+When a class handles multiple concerns (e.g., logic + database + I/O), you can’t isolate one behavior without heavy mocking. Tests become brittle and slow.
+
+### Q: How do SRP and OCP work together in large systems?
+
+SRP keeps each class focused; OCP ensures each focused class can evolve safely. Together, they yield modular systems.
+
+Example:
+
+In a payment system, each IPaymentProcessor (PayPal, Stripe, Card) has a single purpose (SRP). The orchestrator uses polymorphism to extend new processors (OCP).
+
+```csharp
+public interface IPaymentProcessor { Task PayAsync(Order order); }
+public class PaymentOrchestrator {
+    private readonly IEnumerable<IPaymentProcessor> _processors;
+    public PaymentOrchestrator(IEnumerable<IPaymentProcessor> processors) => _processors = processors;
+    public Task ProcessAsync(Order order) => _processors.First(p => p.CanHandle(order)).PayAsync(order);
+}
+```
+
+Adding ApplePay means adding a new class — no edits to orchestrator. SRP gives clear boundaries; OCP allows evolution.
+
+### Q: Describe a situation where applying SOLID transformed messy code into something maintainable.
+
+Context: In a legacy billing module, one giant class handled everything — validation, calculations, persistence, and emailing invoices. Any change risked breaking 10 others.
+
+Action:
+
+We refactored:
+
+**Split responsibilities (SRP). **
+
+Introduced abstractions (IInvoiceRepository, INotificationService) (DIP).
+
+Added strategy pattern for tax rules (OCP).
+
+Result: Each module became independently testable. New tax regions or email templates could be added without modifying core code. Deployment frequency doubled, bug rate dropped.
+
+Lesson: SOLID isn’t theoretical — it’s the blueprint for sustainable change. When done well, it reduces friction, boosts confidence, and enables continuous delivery.
