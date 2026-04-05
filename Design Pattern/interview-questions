@@ -155,3 +155,127 @@ Added strategy pattern for tax rules (OCP).
 Result: Each module became independently testable. New tax regions or email templates could be added without modifying core code. Deployment frequency doubled, bug rate dropped.
 
 Lesson: SOLID isn’t theoretical — it’s the blueprint for sustainable change. When done well, it reduces friction, boosts confidence, and enables continuous delivery.
+
+## OOP(Object-Oriented Programming)
+
+### Q: Explain encapsulation beyond “getters and setters.” Why does it matter in real systems?
+
+Encapsulation is about controlling access to state so invariants stay true and change is localized.
+
+It’s not just private fields; it’s a contract: “this object manages its own correctness.”
+
+You expose intention-revealing methods (e.g., Withdraw(amount)) instead of letting callers mutate fields (balance -= x).
+
+Benefits:
+
+(1) You can validate inputs and maintain invariants;
+
+(2) you can change internals (data structure, caching) without breaking callers;
+
+(3) you reduce temporal coupling by preventing “set A then set B then call C” sequences.
+
+```csharp
+public sealed class BankAccount {
+    private decimal _balance;
+    public BankAccount(decimal opening) { _balance = opening; }
+
+    public void Deposit(decimal amount) {
+        if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+        _balance += amount;
+    }
+
+    public void Withdraw(decimal amount) {
+        if (amount <= 0 || amount > _balance) throw new InvalidOperationException();
+        _balance -= amount;
+    }
+
+    public decimal GetBalance() => _balance; // Read-only view
+}
+```
+
+### Q: Abstraction vs. Encapsulation — aren’t they the same? Give a concrete contrast.
+
+They’re related but different:
+
+Encapsulation hides how things work (internal state/implementation).
+
+Abstraction hides what you don’t need to think about, by exposing essential behavior through a simpler model.
+
+A payment system might abstract “take a payment” without exposing card tokenization, retries, or 3D-Secure.
+
+```csharp
+public interface IPaymentService {
+    Task<PaymentResult> ChargeAsync(string customerId, decimal amount, string currency);
+}
+
+// Stripe, Adyen, PayPal all implement the same abstraction:
+public class StripePaymentService : IPaymentService { /* calls Stripe SDK */ }
+public class PayPalPaymentService : IPaymentService { /* calls PayPal API */ }
+```
+
+### Q: Inheritance vs. Composition — when does each shine, and what’s the common trap?
+
+Use inheritance for true is-a relationships where subclasses honor the parent’s contract. Use composition to assemble behavior from parts (has-a).
+
+A common trap is “reuse via inheritance,” which often violates the Liskov Substitution Principle and couples you to base-class internals.
+
+```csharp
+// Composition: add caching without subclassing
+public class ProductServiceCaching : IProductService {
+    private readonly IProductService _inner;
+    private readonly IMemoryCache _cache;
+    public ProductServiceCaching(IProductService inner, IMemoryCache cache) { _inner = inner; _cache = cache; }
+
+    public Task<Product> GetAsync(string id) =>
+        _cache.GetOrCreateAsync(id, _ => _inner.GetAsync(id));
+}
+```
+
+### Q: Show runtime polymorphism in a real flow and explain why it beats switch trees.
+
+Polymorphism routes behavior by type at runtime, avoiding giant switch/if ladders that grow with every new case.
+
+This improves extensibility: add a new type, add a new class.
+
+```csharp
+public interface ShippingCost {
+    decimal Calculate(Order order);
+}
+public class StandardShipping : ShippingCost { public decimal Calculate(Order o) => 8m; }
+public class ExpressShipping  : ShippingCost { public decimal Calculate(Order o) => 20m; }
+
+public class Checkout {
+    private readonly ShippingCost _shipping;
+    public Checkout(ShippingCost shipping) => _shipping = shipping;
+    public decimal Total(Order order) => order.Subtotal + _shipping.Calculate(order);
+}
+```
+
+To add “FreeShippingForVIP,” implement a new class—no change to Checkout.
+
+### Q: How do you enforce invariants (Design by Contract) in OOP models?
+
+Model invariants are rules that must always hold (e.g., Order.Total >= 0, Order.Status transitions are valid).
+
+Enforce them in constructors and mutator methods so invalid states are unrepresentable. Prefer rich domain methods over anemic DTOs.
+
+```csharp
+public sealed class Order {
+    private readonly List<OrderLine> _lines = new();
+    public IReadOnlyList<OrderLine> Lines => _lines;
+    public decimal Total => _lines.Sum(l => l.Price * l.Qty);
+
+    public void AddLine(Product p, int qty, decimal price) {
+        if (qty <= 0 || price < 0) throw new ArgumentException();
+        _lines.Add(new OrderLine(p.Id, qty, price));
+    }
+}
+```
+
+Clients can’t sneak in negative quantities or totals; the object guards its invariants.
+
+### Q: Explain Dependency Inversion (DIP) and how DI containers help—but don’t overuse them.
+
+DIP says high-level policy shouldn’t depend on low-level details; both depend on abstractions. You depend on IMessageBus, not “Kafka v2.9.”
+
+A DI container wires implementations to interfaces at the edge. Overuse smells: service locators, hidden dependencies, or deep object graphs.
