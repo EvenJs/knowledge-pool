@@ -47,7 +47,7 @@ Adding a new rule = new class. You don’t touch DiscountService, minimizing reg
 
 ### Q: What’s a common violation of the Liskov Substitution Principle (LSP) and how do you fix it?
 
-LSP says subclasses must be substitutable for their base type without breaking expected behavior. Violations usually happen when a subclass narrows preconditions or breaks expected outcomes.
+> LSP says subclasses must be substitutable for their base type without breaking expected behavior. Violations usually happen when a subclass narrows preconditions or breaks expected outcomes.
 
 ```csharp
 public class Rectangle {
@@ -72,7 +72,7 @@ public class Square {
 
 ### Q: How do you apply the Interface Segregation Principle (ISP) in practice?
 
-ISP says don’t force clients to depend on methods they don’t use. Large “god interfaces” create unnecessary dependencies, breaking test isolation and reuse.
+> ISP says don’t force clients to depend on methods they don’t use. Large “god interfaces” create unnecessary dependencies, breaking test isolation and reuse.
 
 Bad:
 
@@ -96,7 +96,7 @@ public interface IReportGenerator { void GenerateReport(); }
 
 ### Q: Explain the Dependency Inversion Principle (DIP) using an example from an API project.
 
-DIP tells you to depend on abstractions, not concretions. High-level modules (e.g., controllers) shouldn’t care if you use SQL Server, MongoDB, or an in-memory store.
+> DIP tells you to depend on abstractions, not concretions. High-level modules (e.g., controllers) shouldn’t care if you use SQL Server, MongoDB, or an in-memory store.
 
 ```csharp
 public interface IUserRepository {
@@ -117,15 +117,15 @@ This makes your service testable (FakeUserRepository) and swap-friendly (MongoDB
 
 ### Q: In your experience, how can violating SRP lead to poor testability?
 
-When a class handles multiple concerns (e.g., logic + database + I/O), you can’t isolate one behavior without heavy mocking. Tests become brittle and slow.
+> When a class handles multiple concerns (e.g., logic + database + I/O), you can’t isolate one behavior without heavy mocking. Tests become brittle and slow.
 
 ### Q: How do SRP and OCP work together in large systems?
 
-SRP keeps each class focused; OCP ensures each focused class can evolve safely. Together, they yield modular systems.
-
-Example:
-
-In a payment system, each IPaymentProcessor (PayPal, Stripe, Card) has a single purpose (SRP). The orchestrator uses polymorphism to extend new processors (OCP).
+> SRP keeps each class focused; OCP ensures each focused class can evolve safely. Together, they yield modular systems.
+>
+> Example:
+>
+> In a payment system, each IPaymentProcessor (PayPal, Stripe, Card) has a single purpose (SRP). The orchestrator uses polymorphism to extend new processors (OCP).
 
 ```csharp
 public interface IPaymentProcessor { Task PayAsync(Order order); }
@@ -160,19 +160,17 @@ Lesson: SOLID isn’t theoretical — it’s the blueprint for sustainable chang
 
 ### Q: Explain encapsulation beyond “getters and setters.” Why does it matter in real systems?
 
-Encapsulation is about controlling access to state so invariants stay true and change is localized.
-
-It’s not just private fields; it’s a contract: “this object manages its own correctness.”
-
-You expose intention-revealing methods (e.g., Withdraw(amount)) instead of letting callers mutate fields (balance -= x).
-
-Benefits:
-
-(1) You can validate inputs and maintain invariants;
-
-(2) you can change internals (data structure, caching) without breaking callers;
-
-(3) you reduce temporal coupling by preventing “set A then set B then call C” sequences.
+> Encapsulation is about controlling access to state so invariants stay true and change is localized.
+>
+> It’s not just private fields; it’s a contract: “this object manages its own correctness.”
+>
+> You expose intention-revealing methods (e.g., Withdraw(amount)) instead of letting callers mutate fields (balance -= x).
+>
+> **Benefits:**
+>
+> 1.  You can validate inputs and maintain invariants;
+> 2.  you can change internals (data structure, caching) without breaking callers;
+> 3.  you reduce temporal coupling by preventing “set A then set B then call C” sequences.
 
 ```csharp
 public sealed class BankAccount {
@@ -195,13 +193,11 @@ public sealed class BankAccount {
 
 ### Q: Abstraction vs. Encapsulation — aren’t they the same? Give a concrete contrast.
 
-They’re related but different:
-
-Encapsulation hides how things work (internal state/implementation).
-
-Abstraction hides what you don’t need to think about, by exposing essential behavior through a simpler model.
-
-A payment system might abstract “take a payment” without exposing card tokenization, retries, or 3D-Secure.
+> They’re related but different:
+>
+> > - Encapsulation hides how things work (internal state/implementation).
+> > - Abstraction hides what you don’t need to think about, by exposing essential behavior through a simpler model.
+> > - A payment system might abstract “take a payment” without exposing card tokenization, retries, or 3D-Secure.
 
 ```csharp
 public interface IPaymentService {
@@ -215,9 +211,9 @@ public class PayPalPaymentService : IPaymentService { /* calls PayPal API */ }
 
 ### Q: Inheritance vs. Composition — when does each shine, and what’s the common trap?
 
-Use inheritance for true is-a relationships where subclasses honor the parent’s contract. Use composition to assemble behavior from parts (has-a).
-
-A common trap is “reuse via inheritance,” which often violates the Liskov Substitution Principle and couples you to base-class internals.
+> Use inheritance for true is-a relationships where subclasses honor the parent’s contract. Use composition to assemble behavior from parts (has-a).
+>
+> A common trap is “reuse via inheritance,” which often violates the Liskov Substitution Principle and couples you to base-class internals.
 
 ```csharp
 // Composition: add caching without subclassing
@@ -233,9 +229,9 @@ public class ProductServiceCaching : IProductService {
 
 ### Q: Show runtime polymorphism in a real flow and explain why it beats switch trees.
 
-Polymorphism routes behavior by type at runtime, avoiding giant switch/if ladders that grow with every new case.
-
-This improves extensibility: add a new type, add a new class.
+> Polymorphism routes behavior by type at runtime, avoiding giant switch/if ladders that grow with every new case.
+>
+> This improves extensibility: add a new type, add a new class.
 
 ```csharp
 public interface ShippingCost {
@@ -251,13 +247,13 @@ public class Checkout {
 }
 ```
 
-To add “FreeShippingForVIP,” implement a new class—no change to Checkout.
+> To add “FreeShippingForVIP,” implement a new class—no change to Checkout.
 
 ### Q: How do you enforce invariants (Design by Contract) in OOP models?
 
-Model invariants are rules that must always hold (e.g., Order.Total >= 0, Order.Status transitions are valid).
-
-Enforce them in constructors and mutator methods so invalid states are unrepresentable. Prefer rich domain methods over anemic DTOs.
+> Model invariants are rules that must always hold (e.g., Order.Total >= 0, Order.Status transitions are valid).
+>
+> Enforce them in constructors and mutator methods so invalid states are unrepresentable. Prefer rich domain methods over anemic DTOs.
 
 ```csharp
 public sealed class Order {
@@ -272,10 +268,145 @@ public sealed class Order {
 }
 ```
 
-Clients can’t sneak in negative quantities or totals; the object guards its invariants.
+> Clients can’t sneak in negative quantities or totals; the object guards its invariants.
 
 ### Q: Explain Dependency Inversion (DIP) and how DI containers help—but don’t overuse them.
 
-DIP says high-level policy shouldn’t depend on low-level details; both depend on abstractions. You depend on IMessageBus, not “Kafka v2.9.”
+> DIP says high-level policy shouldn’t depend on low-level details; both depend on abstractions. You depend on IMessageBus, not “Kafka v2.9.”
+>
+> A DI container wires implementations to interfaces at the edge. Overuse smells: service locators, hidden dependencies, or deep object graphs.
 
-A DI container wires implementations to interfaces at the edge. Overuse smells: service locators, hidden dependencies, or deep object graphs.
+## Microservice
+
+### Q: Why do microservices prefer “database per service”?
+
+> To keep data ownership and schema evolution independent. It enforces clear boundaries and reduces coupling. Cross-service joins are replaced by APIs or events.
+>
+> Example: OrderService has Orders DB; InventoryService has Stock DB. OrderPlaced event updates an InventoryProjection in Inventory’s DB—no shared schema.
+
+### Q: When should a system move from monolith to microservices?
+
+> - Deployment becomes slow.
+> - One module needs to scale independently.
+> - Teams struggle with code ownership.
+> - Changes in one module break others. If these symptoms appear, splitting by business domains (Product, Order, Auth) helps. Microservices are a scaling strategy, not a starting point.
+
+### Q: When to use HTTP communication vs message queues in microservices?
+
+> HTTP is for immediate responses—payments, authentication, inventory checks. Message queues (RabbitMQ, Azure Service Bus) are for async operations—email notifications, audit logs, report generation, data sync. This reduces coupling and improves resilience.
+
+### Q: How do you consume Azure Service Bus or RabbitMQ in .NET?
+
+> Producer sends messages using ServiceBusClient. Consumer is implemented using BackgroundService, where the message handler processes and acknowledges messages. I design a shared Contracts library so both services use the same message schema.
+
+### Q: What is the difference between DDD’s Domain Events and Event Sourcing events?
+
+> In DDD, Domain Events represent something significant that happened in the domain, like OrderPlaced. They describe intent.
+>
+> Event Sourcing events, on the other hand, are state-change records stored to rebuild an entity’s state (like ItemAddedToOrder, ItemRemovedFromOrder).
+
+```csharp
+// Domain Event (for other services)
+public record OrderPlaced(Guid OrderId, DateTime Timestamp) : IDomainEvent;
+
+// Event Sourcing Event (for reconstruction)
+public record ItemAdded(Guid ItemId, int Qty);
+```
+
+Domain events are notifications; event-sourcing events are data sources. In real systems, both can co-exist — event sourcing maintains state, while domain events integrate systems.
+
+### Q: How would you explain CQRS and its relationship to DDD?
+
+> CQRS (Command Query Responsibility Segregation) separates the write model (commands) from the read model (queries).
+
+> In DDD, commands modify Aggregates (rich domain), while queries use simplified DTOs optimized for reads.
+
+```csharp
+// Command
+public record PlaceOrderCommand(Guid CustomerId, List<Guid> ProductIds);
+
+// Query
+public record GetOrderDetailsQuery(Guid OrderId);
+```
+
+> This separation improves scalability, supports eventual consistency, and keeps the domain model pure.
+> In microservices, CQRS complements DDD: the domain model handles behavior; projections handle data views.
+
+### Q: How do you design an Aggregate that handles concurrency in a distributed system?
+
+> You can use Optimistic Concurrency Control by tracking an entity’s version.
+
+```csharp
+public class Order {
+    public Guid Id { get; private set; }
+    [Timestamp] public byte[] RowVersion { get; private set; }
+}
+```
+
+> Before saving, EF compares versions — if changed, it throws a concurrency exception.
+
+> Alternatively, in Event Sourcing, the Aggregate Root checks the last event version before applying new ones. In distributed systems, versioning ensures consistency without database locks, allowing multiple users to interact safely with the same aggregate.
+
+### Q: How does Eventual Consistency relate to DDD?
+
+> DDD embraces eventual consistency when different aggregates or bounded contexts must synchronize asynchronously.
+>
+> For instance, when an Order is placed, Inventory is updated later through an event.
+>
+> Immediate consistency isn’t required across bounded contexts — that would couple them.
+>
+> Using Domain Events published to message brokers (RabbitMQ, Azure Service Bus) allows microservices to stay autonomous.
+>
+> Tradeoff: you gain scalability and resilience but must handle temporary inconsistency (e.g., showing “Processing” until stock updates).
+
+### Q: What is a microservice and when would you not use it?
+
+> A microservice is an independently deployable service that owns a narrow business capability, with its own data and runtime, and communicates over the network (HTTP/gRPC/events). Use for complex, evolving domains where different parts scale and change at different speeds.
+>
+> Avoid when the problem is simple CRUD, the team is small, or ops maturity is low—because distributed systems add latency, consistency, and operational overhead.
+>
+> Example: A simple internal reporting tool is better as a modular monolith; an e-commerce platform with pricing, inventory, checkout, and fraud detection benefits from microservices.
+
+### Q: Synchronous vs asynchronous communication—trade-offs?
+
+> - Sync (REST/gRPC): simpler request/reply and immediate feedback, but increases coupling and cascading failures.
+> - Async (events/queues): loose coupling, better resilience and throughput, but adds eventual consistency and operational complexity (ordering, dedup).
+>
+> **Example**:
+>
+> Payment auth (needs a response) → gRPC. Email receipt + analytics → publish OrderConfirmed to Kafka/Azure Service Bus.
+
+### Q: What is an API Gateway and why use it?
+
+> A front door for clients:
+>
+> routing, auth, TLS termination, rate limiting, request/response shaping, and BFF patterns. It hides internal topology and allows zero-touch backend evolution.
+>
+> **Example:**
+>
+> Azure APIM / Kong routes /api/orders/\* to OrderService, injects JWT claims, enforces 100 req/min, and translates v1→v2 payloads.
+
+### Q: What does “eventual consistency” mean in microservices?
+
+> Different services converge to a consistent state over time via asynchronous updates. Clients may see transient states (e.g., “Processing”).
+>
+> Example: OrderService emits OrderPaid; ShippingService consumes it and marks ReadyToShip later. UI shows a spinner or status timeline.
+
+### Q: How do you prevent cascading failures?
+
+Apply timeouts, retries with backoff/jitter, circuit breakers, bulkheads, and load shedding. Prefer async integration to decouple.
+
+```csharp
+Policy.TimeoutAsync(2.Seconds())
+ .WrapAsync(Policy.Handle<HttpRequestException>()
+ .WaitAndRetryAsync(3, i => TimeSpan.FromMilliseconds(200 * i)))
+ .WrapAsync(Policy.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+```
+
+### Q: How do you secure microservices end-to-end?
+
+> Use OAuth2/OIDC (Auth0/Entra/Keycloak) for tokens at the edge; propagate JWT with scopes/claims; apply mTLS or service mesh for inter-service authZ; store secrets in vaults; minimize token surface via BFF.
+>
+> Example:
+>
+> API Gateway validates JWT, injects claims; services enforce fine-grained policies (e.g., customerId match).
