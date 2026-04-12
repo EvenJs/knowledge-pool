@@ -112,3 +112,40 @@ const store = configureStore({ reducer: { todos: todoSlice.reducer } });
 ```
 
 > Benefits: less boilerplate, integrated immutability, and improved developer experience
+
+---
+
+## Testing
+
+### Q: How to test async code in React?
+
+> Use await findBy... or waitFor.
+
+```javascript
+await waitFor(() => expect(screen.getByText("Loaded")).toBeInTheDocument());
+```
+
+### Q: What is snapshot testing?
+
+> It ensures the UI doesn’t change unexpectedly by comparing rendered output with a stored snapshot.
+
+```javascript
+expect(container).toMatchSnapshot();
+```
+
+### Q: How do you mock API calls in tests?
+
+> Use jest.mock() or mock service worker (MSW).
+
+```javascript
+jest.mock("./api", () => ({ getUsers: jest.fn() }));
+```
+
+### Q: How do you test custom hooks?
+
+> Use renderHook from @testing-library/react.
+
+```javascript
+const { result } = renderHook(() => useCounter());
+expect(result.current.count).toBe(0);
+```
