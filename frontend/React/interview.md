@@ -1,3 +1,136 @@
+## Hooks
+
+### Q: What are React Hooks? List some commonly used Hooks
+
+> Hooks are a feature introduced in React 16.8 that allow you to use state and other React features in functional components.  
+> **Rules of hooks:**
+>
+> - Only call Hooks in functional components or custom Hooks
+> - Only call Hooks at the top level, not inside loops, conditions, or nested functions
+
+### Q: How does useState work in React?
+
+> **How it works**
+>
+> - React stores state between re-renders
+> - When setState is called, component re-renders
+> - React preserves state value across renders
+> - Each render gets its own state snapshot
+
+> **Important notes**
+>
+> - State updates are asynchronous
+> - State updates trigger re-renders
+> - Cannot call useState conditionally
+> - State is isolated to each component instance
+
+### Q: What is useEffect and its purpose?
+
+> useEffect handles side effects in functional components (data fetching, subscriptions, DOM manipulation).
+
+> **Purpose**
+>
+> - Replace lifecycle methods (componentDidMount, componentDidUpdate, componentWillUnmount)
+> - Handle side effects outside of render
+> - Keep side effects synchronized with component state
+
+### Q: What is a Custom Hook?
+
+> A custom hook is a reusable JavaScript function that uses React hooks and follows the naming convention "use" prefix.
+
+> **Purpose**
+>
+> - Extract and reuse component logic
+> - Share stateful logic between components
+> - Keep components clean and focused
+> - Avoid code duplication
+
+> **Benefits**
+>
+> - Code reusability across components
+> - Separation of concerns
+> - Easier testing
+> - Cleaner component code
+> - Share logic without HOCs or render props
+> - Composable (hooks can use other hooks)
+
+> **When to Create Custom Hooks:**
+>
+> - Logic is used in multiple components
+> - Complex stateful logic needs extraction
+> - Combining multiple hooks for specific functionality
+> - Abstracting side effects
+
+> **Best Practices:**
+>
+> - Always start name with "use"
+> - Keep hooks focused and single-purpose
+> - Document parameters and return values
+> - Return objects for multiple values (easier to extend)
+> - Handle cleanup in useEffect
+> - Make hooks testable
+
+## Q: What rules do you have to follow when using hooks?
+
+React hooks have specific rules that must be followed to ensure they work correctly. These rules are enforced by the eslint-plugin-react-hooks linter plugin. Keep hooks at the top of your component
+
+> **Rule 1: Only Call Hooks at the Top Level**  
+> Never call hooks inside loops, conditions, or nested functions. Hooks must be called in the same order on every render to maintain their internal state correctly.
+>
+> **Rule 2: Only Call Hooks from React Functions**  
+> Hooks can only be called from:
+>
+> > React function components  
+> > Custom hooks (functions starting with "use")
+>
+> Never call hooks from:
+>
+> > Regular JavaScript functions  
+> > Class components  
+> > Event handlers (unless inside a function component)
+>
+> **Rule 3: Custom Hooks Must Start with "use"**  
+> This naming convention allows React and linters to identify hooks and enforce the rules of hooks.  
+> **Rule 4: Complete Dependency Arrays**  
+> Always include all values from the component scope that change over time and are used by the effect in the dependency array.  
+> **Rule 5: Don't Call Hooks Conditionally**  
+> Hooks should always be called, even if their behavior is conditional
+
+### Q: How do Hooks work in React?
+
+> React maintains a list of hooks for each component using a linked list:  
+> Component renders → React tracks hooks in order → Stores values in memory
+
+```javascript
+const Component = () => {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState("");
+
+  useEffect(() => {}, [count]);
+};
+```
+
+> React tracks: [useState(0), useState(""), useEffect(...)]
+
+> **Benefits of Hooks:**
+>
+> - Reuse stateful logic without changing component hierarchy
+> - Split complex components into smaller functions
+> - Use state without classes
+> - Easier to understand than lifecycle methods
+> - Better code organization
+> - Improved code reusability
+
+> **Hook Flow:**
+>
+> 1. Component function runs
+> 2. Hooks execute in order
+> 3. React stores hook values
+> 4. Component returns JSX
+> 5. On re-render, React retrieves stored hook values
+> 6. Hooks execute again in same order  
+>    Key: Hooks must be called in the same order on every render!
+
 ## Redux
 
 ### Q: What is Redux and why is it used in React applications?
